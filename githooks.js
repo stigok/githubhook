@@ -7,6 +7,7 @@ const port = process.env.PORT || 61750
 const http = require('http')
 const exec = require('child_process').exec
 const url = require('url')
+const crypto = require('crypto')
 
 function logRequest(req) {
   const params = [req.method, req.url, req.connection.remoteAddress, req.headers['user-agent'] || 'no agent']
@@ -14,8 +15,11 @@ function logRequest(req) {
 }
 
 function isAuthenticated(req) {
-  const qs = url.parse(req.url, true).query
-  return qs['token'] === secretToken
+  return validateHMAC(req.body, req.headers['X-Hub-Signature'])
+}
+
+function validateHMAC(str, checksum) {
+  return crypto.createHmac('sha1', secretToken).update(str).digest('hex') === checksum
 }
 
 function runCommand() {
@@ -33,15 +37,18 @@ function runCommand() {
 
 const router = function (req, res, next) {
   logRequest(req)
-  if (isAuthenticated(req)) {
-    res.statusCode = 200
-    runCommand()
-    res.write('OK')
-  } else {
+  if (!isAuthenticated(req)) {
+    console.error('SHA1 HMAC checksum invalid')
     res.statusCode = 403
-    res.write('ACCESS DENIED')
+    res.write('Access denied')
+    res.end()
+    return
   }
+  console.log('SHA1 HMAC checksum valid')
+  res.statusCode = 200
+  res.write('OK')
   res.end()
+  runCommand()
 }
 
 http.createServer(router).listen(port, () => console.log('Listening on port ' + port))
