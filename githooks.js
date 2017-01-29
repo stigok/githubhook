@@ -1,54 +1,58 @@
 #!/usr/bin/env node
 
-const successCommand = process.env.SUCCESS_COMMAND || 'echo Success!'
-const secretToken = process.env.SECRET_TOKEN || '42isthemagicnumber'
-const port = process.env.PORT || 61750
-
-const http = require('http')
-const exec = require('child_process').exec
-const url = require('url')
+const express = require('express')
+const bodyParser = require('body-parser')
 const crypto = require('crypto')
+const exec = require('child_process').exec
 
-function logRequest(req) {
-  const params = [req.method, req.url, req.connection.remoteAddress, req.headers['user-agent'] || 'no agent']
-  console.log(params.join('\t'))
-}
+const port = process.env.PORT || 61750
+const secret = process.env.SECRET_TOKEN || 'secret'
+const successCommand = process.env.SUCCESS_COMMAND || 'echo Success!'
 
-function isAuthenticated(req) {
-  return validateHMAC(req.body, req.headers['X-Hub-Signature'])
-}
+const app = express()
+const hmac = crypto.createHmac('sha1', secret)
 
-function validateHMAC(str, checksum) {
-  return crypto.createHmac('sha1', secretToken).update(str).digest('hex') === checksum
-}
+app.use((req, res, next) => {
+  console.log(req.method, req.ip, Date.now())
+  next()
+})
 
-function runCommand() {
-  exec(successCommand, (err, stdout, stderr) => {
-    if (err) {
-      console.error('Command execution exited with errors')
-      console.error('err:', err)
-      console.error('stderr:', stderr)
-      return;
+// Validate request bodies
+app.use(bodyParser.json({
+  verify: (req, res, buf, encoding) => {
+    const checksum = req.headers['x-hub-signature']
+    const digest = 'sha1=' + hmac.update(buf).digest('hex')
+    console.log('Comparing checksums', checksum, digest)
+    if (checksum !== digest) {
+      throw new Error(`Checksum did not match digest ${digest}`)
+    } else {
+      console.log('Checksum verified')
     }
-    console.log('Command executed successfully')
-    console.log('stdout:', stdout)
-  })
-}
-
-const router = function (req, res, next) {
-  logRequest(req)
-  if (!isAuthenticated(req)) {
-    console.error('SHA1 HMAC checksum invalid')
-    res.statusCode = 403
-    res.write('Access denied')
-    res.end()
-    return
   }
-  console.log('SHA1 HMAC checksum valid')
-  res.statusCode = 200
-  res.write('OK')
-  res.end()
-  runCommand()
-}
+}))
 
-http.createServer(router).listen(port, () => console.log('Listening on port ' + port))
+// Git web hook
+app.post('/', function (req, res, next) {
+  if (!req.body) {
+    console.error('Request body empty')
+    return next()
+  }
+
+  exec(successCommand, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err)
+      console.error(stderr)
+    } else {
+      console.log('Success! Command returned: ', stdout)
+    }
+  })
+
+  res.send('Success')
+})
+
+app.use((err, req, res, next) => {
+  console.error('500 Server error', err)
+  res.status(403).send('Access denied')
+})
+
+app.listen(port, () => console.log('Listening on port ' + port))
