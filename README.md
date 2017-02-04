@@ -1,7 +1,7 @@
 ## Install
 
   - Clone repo
-  - Run `npm install` in project folder
+  - Run `npm install --global` in project folder to install the `githubhook` binary
 
 ## Usage
 
@@ -11,7 +11,7 @@ Set required environment variables. **Defaults are not provided!**
   - `SECRET` Secret key used for creating HMAC digest of the payload
   - `CMD` Command to run whenever a request with a valid payload is received
 
-Start the server with `npm start`
+Start the server with `githubhook`
 
 ### Example
 
