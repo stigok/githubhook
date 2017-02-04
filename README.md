@@ -1,5 +1,3 @@
-# githooks
-
 ## Install
 
   - Clone repo
@@ -7,7 +5,7 @@
 
 ## Usage
 
-Set required environment variables. Defaults are not being set.
+Set required environment variables. **Defaults are not provided!**
 
   - `PORT` What port to listen on
   - `SECRET` Secret key used for creating HMAC digest of the payload
