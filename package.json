@@ -24,6 +24,6 @@
   "homepage": "https://github.com/stigok/githooks.js#readme",
   "dependencies": {
     "body-parser": "^1.16.0",
-    "express": "^4.14.0"
+    "express": "^4.14.1"
   }
 }
