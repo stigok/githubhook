@@ -15,11 +15,11 @@ Start the server with `githubhook`
 
 ### Example
 
-In a setup where a node application is watched by `nodemon`, where it runs the
-command specified by `-x`, and restarts it whenever a file with extension `-e`
-is updated.
+In a setup where a Node.js app folder is watched by `nodemon`, it runs the
+`--exec` process and restarts it whenever a file with a specific extension is
+touched.
 
-    nodemon -d 1 -e refresh -x "git pull && npm start"
+    nodemon --watch "./" --ext "refresh" --delay "1" --exec "git pull && npm start"
 
 The `githubhook` executes `touch trigger.refresh` whenever a valid payload is
 sent to the HTTP server.
