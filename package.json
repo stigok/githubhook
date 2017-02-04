@@ -1,15 +1,14 @@
 {
-  "name": "githooks",
+  "name": "githubhook",
   "version": "0.0.1",
-  "description": "Run command on GitHub webhook events",
-  "main": "githooks.js",
+  "description": "Execute a command on GitHub webhook events",
   "scripts": {
-    "start": "node githooks.js",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stigok/githooks.js.git"
+    "url": "git+https://github.com/stigok/githubhook.git"
   },
   "keywords": [
     "git",
@@ -19,9 +18,9 @@
   "author": "stigok",
   "license": "CC0-1.0",
   "bugs": {
-    "url": "https://github.com/stigok/githooks.js/issues"
+    "url": "https://github.com/stigok/githubhook/issues"
   },
-  "homepage": "https://github.com/stigok/githooks.js#readme",
+  "homepage": "https://github.com/stigok/githubhook#readme",
   "dependencies": {
     "body-parser": "^1.16.0",
     "express": "^4.14.1"
