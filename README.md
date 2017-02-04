@@ -15,9 +15,16 @@ Start the server with `githubhook`
 
 ### Example
 
-    PORT=3000 SECRET=sesame CMD="touch trigger.refresh" nodemon -d 1 -e refresh -x "git pull && npm start"
+In a setup where a node application is watched by `nodemon`, where it runs the
+command specified by `-x`, and restarts it whenever a file with extension `-e`
+is updated.
 
-Where `nodemon` runs the command specified by `-x`, and restarts it whenever a file with extension `-e` is updated. The `githubhook` executes `touch trigger.refresh` whenever a valid payload is sent to the HTTP server.
+    nodemon -d 1 -e refresh -x "git pull && npm start"
+
+The `githubhook` executes `touch trigger.refresh` whenever a valid payload is
+sent to the HTTP server.
+
+    PORT=3000 SECRET=sesame CMD="touch trigger.refresh" githubhook
 
 ## TODO
 
