@@ -13,7 +13,11 @@ Set required environment variables. **Defaults are not provided!**
 
 Start the server with `npm start`
 
-    PORT=3000 SECRET=sesame CMD="touch .refresh" npm start
+### Example
+
+    PORT=3000 SECRET=sesame CMD="touch trigger.refresh" nodemon -d 1 -e refresh -x "git pull && npm start"
+
+Where `nodemon` runs the command specified by `-x`, and restarts it whenever a file with extension `-e` is updated. The `githubhook` executes `touch trigger.refresh` whenever a valid payload is sent to the HTTP server.
 
 ## TODO
 
