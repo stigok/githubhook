@@ -8,7 +8,10 @@ const exec = require('child_process').exec
 const port = process.env.PORT || 3000
 const secret = process.env.SECRET
 const successCommand = process.env.CMD
-const headerKey = process.env.HEADER_KEY_NAME || 'x-hub-signature'
+
+// GitHub: X-Hub-Signature
+// Gogs:   X-Gogs-Signature
+const sigHeaderName = process.env.HEADER_KEY_NAME || 'X-Hub-Signature'
 
 if (!secret) {
   console.error('No secret set!')
@@ -34,43 +37,42 @@ app.use((req, res, next) => {
 
 app.use(bodyParser.json())
 
-// Validate request bodies
+// Request body validator
 function verifyPostData(req, res, next) {
   const payload = JSON.stringify(req.body)
-  if (!payload || !payload.length) {
+  if (!payload) {
     return next('Request body empty')
   }
 
   const hmac = crypto.createHmac('sha1', secret)
   const digest = 'sha1=' + hmac.update(payload).digest('hex')
-  const checksum = req.headers[headerKey]
+  const checksum = req.get(sigHeaderName)
   if (!checksum || !digest || checksum !== digest) {
-    next(`Request body digest (${digest}) did not match header[${headerKey}] (${checksum})`)
-    return next()
-  } else {
-    console.log('Checksum verified', checksum)
-    return next()
+    return next(`Request body digest (${digest}) did not match ${sigHeaderName} (${checksum})`)
   }
+
+  console.log('Checksum verified', checksum)
+  return next()
 }
 
 // Git web hook
-app.post('/', verifyPostData, function (req, res, next) {
+app.post('/', verifyPostData, function (req, res) {
   exec(successCommand, (err, stdout, stderr) => {
-    if (err) {
+    if (err) {
       console.error(err)
-      console.error(stderr)
+      console.error('stderr:', stderr)
     } else {
       console.log(`Success! Command returned ${stdout} (0)`)
     }
   })
 
-  res.send('Success')
+  res.status(200).send('Request body was signed')
 })
 
 // Handle all errors and exceptions
 app.use((err, req, res, next) => {
-  console.error('500 Server error', err)
-  res.status(403).send('Access denied')
+  if (err) console.error(err)
+  res.status(403).send('Request body was not signed or verification failed')
 })
 
 app.listen(port, () => console.log('Listening on port ' + port))
