@@ -1,6 +1,6 @@
 {
   "name": "githubhook",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Execute a command on valid GitHub webhook events",
   "bin": "server.js",
   "preferGlobal": true,
