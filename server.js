@@ -31,7 +31,7 @@ const app = express()
 // Log all requests
 app.use((req, res, next) => {
   const date = new Date();
-  console.log(date.toString(), req.ip, req.method, req.path)
+  console.log(date.toISOString(), req.ip, req.method, req.path)
   next()
 })
 
