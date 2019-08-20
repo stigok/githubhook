@@ -26,14 +26,6 @@ sent to the HTTP server.
 
     PORT=3000 SECRET=sesame CMD="touch trigger.refresh" githubhook
 
-## TODO
-
-- [ ] Get rid of all dependencies
-- [ ] Publish events to MQTT
-  - [ ] Eat git webhooks on organization basis
-- [ ] Different logging levels
-- [ ] Bind to a domain in proxy (???)
-
 ## References
 
 - https://developer.github.com/webhooks/
